@@ -1,0 +1,2 @@
+# LPNG
+LatentPNG format (proposal)
