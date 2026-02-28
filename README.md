@@ -192,12 +192,12 @@ pixels → VAE encode
 
 ## Recommended Extension
 
-File extension may remain `.png`.
+File clarity extension should be `.lpng`.
 
-Optional clarity extension:
+Optional compatibility extension:
 
 ```
-.lpng
+.png
 ```
 
 Both are valid PNG files.
