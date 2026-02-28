@@ -19,6 +19,8 @@ Encoding and decoding of latents is internally handled by Load / Save nodes with
      Load Image -> if latent => found load that, otherwise => use VAE to gen latent
      Save Image -> save and add latent to metadata, use vae to decode and save the image which is still png compatible
 
+The following image contains the workflow: but the idea is simple, just use your Load LPNG and Save LPNG in place of the usual Load/Save Image
+
 <img width="1484" height="880" alt="workflow(1)" src="https://github.com/user-attachments/assets/a8ba45d2-591a-40c3-90f8-8563d2f2e680" />
 
 
