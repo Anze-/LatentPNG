@@ -1,4 +1,4 @@
-from .nodes import LPNG
+from .nodes import LoadLPNG,SaveLPNG
 
 # ComfyUI: Node class mappings
 
