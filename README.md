@@ -23,6 +23,9 @@ In most diffusion pipelines:
     latent → VAE decode → pixels
     (repeat)
 
+<img width="1261" height="409" alt="image" src="https://github.com/user-attachments/assets/fe8ac346-69ad-4826-87d7-6305d6229db3" />
+
+
 Every additional encode/decode cycle introduces quantization noise and reconstruction bias.
 
 LatentPNG solves this by embedding the latent tensor directly into the PNG file. If present, downstream pipelines can skip VAE encoding entirely and operate directly on the stored latent.
