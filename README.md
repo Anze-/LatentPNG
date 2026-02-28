@@ -9,6 +9,15 @@ This format is:
  * readable by any kind of common image viewer: it can open a png -> it can display this format
  * can be intuitively used in ComfyUI, by loading/saving images with the provided custom nodes.
 
+To keep the solution transparent you cen use a text preview node on the Load `info` output, to see if VAE was used or not to produce the latent.
+
+
+# Example workflow
+
+Encoding and decoding of latents is internally handled by Load / Save nodes with the following logic:
+    Load Image -> if latent found load that, otherwise use VAE
+    Save Image -> save and add latent to metadata, image is still png compatible
+
 # Current state
 Overview: it will load and save latents, but users will make sure the latents are compatible with the model manually
 * Statement: complete
