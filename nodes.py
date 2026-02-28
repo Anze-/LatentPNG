@@ -7,10 +7,7 @@ import numpy as np
 from PIL import Image, PngImagePlugin, ImageSequence, ImageOps
 
 import folder_paths
-<<<<<<< Updated upstream
-=======
 from .node_helpers import pillow as pil
->>>>>>> Stashed changes
 
 LPNG_KEYWORD = "LPNG_LATENT"
 FORMAT_VERSION = "1.0"
@@ -228,7 +225,6 @@ class LoadLPNG:
         return output_image, output_mask, output_latent, info
 
     @classmethod
-<<<<<<< Updated upstream
     def INPUT_TYPES(cls):
         return {
             "required": {
@@ -270,14 +266,12 @@ class LoadLPNG:
         )
 
         return (image_tensor, {"samples": latent_tensor})
-=======
     def IS_CHANGED(s, image):
         image_path = folder_paths.get_annotated_filepath(image)
         m = hashlib.sha256()
         with open(image_path, 'rb') as f:
             m.update(f.read())
         return m.digest().hex()
->>>>>>> Stashed changes
 
     @classmethod
     def VALIDATE_INPUTS(s, image):
