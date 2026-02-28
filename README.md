@@ -9,6 +9,16 @@ This format is:
  * readable by any kind of common image viewer: it can open a png -> it can display this format
  * can be intuitively used in ComfyUI, by loading/saving images with the provided custom nodes.
 
+# Current state
+Overview: it will load and save latents, but users will make sure the latents are compatible with the model manually
+* Statement: complete
+* ComfyUI Nodes:
+    - [x] test package
+    - [x] saving latents
+    - [x] loading latents
+    - [ ] getting metadata from VAE object
+    - [ ] interactive file selector
+
 # LatentPNG (LPNG)
 A backward-compatible PNG extension for storing diffusion latents directly inside PNG metadata.
 
