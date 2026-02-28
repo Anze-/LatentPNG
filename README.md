@@ -16,8 +16,9 @@ Overview: it will load and save latents, but users will make sure the latents ar
     - [x] test package
     - [x] saving latents
     - [x] loading latents
+    - [x] interactive file selector
     - [ ] getting metadata from VAE object
-    - [ ] interactive file selector
+
 
 # LatentPNG (LPNG)
 A backward-compatible PNG extension for storing diffusion latents directly inside PNG metadata.
