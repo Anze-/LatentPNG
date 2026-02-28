@@ -135,6 +135,7 @@ class LoadLPNG:
                     {
                     "image": (sorted(files), {"image_upload": True}),
                     "vae": ("VAE",),
+                    
                     },
                     
                 }
@@ -224,48 +225,7 @@ class LoadLPNG:
 
         return output_image, output_mask, output_latent, info
 
-    @classmethod
-    def INPUT_TYPES(cls):
-        return {
-            "required": {
-                "choose_path": ("STRING", {"default": ""}),
-                "vae": ("VAE",),
-            }
-        }
-
-    RETURN_TYPES = ("IMAGE", "LATENT")
-    RETURN_NAMES = ("image", "latents")
-    FUNCTION = "load"
-    CATEGORY = "LatentPNG"
-
-    def load(self, choose_path, vae):
-
-        if not os.path.exists(choose_path):
-            raise RuntimeError("File does not exist.")
-
-        img = Image.open(choose_path)
-        image_tensor = pil_to_tensor(img)
-
-        metadata_raw = img.info.get(LPNG_KEYWORD, None)
-
-        # If no latent stored → fallback to encode
-        if metadata_raw is None:
-            with torch.no_grad():
-                latent = vae.encode(image_tensor)
-            return (image_tensor, {"samples": latent})
-
-        metadata = json.loads(metadata_raw)
-        latent_info = metadata["latent"]
-
-        compressed = base64.b64decode(latent_info["data"])
-        raw_bytes = zlib.decompress(compressed)
-
-        latent_tensor = bytes_to_tensor_fp16(
-            raw_bytes,
-            latent_info["shape"]
-        )
-
-        return (image_tensor, {"samples": latent_tensor})
+    @classmethod  
     def IS_CHANGED(s, image):
         image_path = folder_paths.get_annotated_filepath(image)
         m = hashlib.sha256()
