@@ -4,9 +4,13 @@ import base64
 import zlib
 import torch
 import numpy as np
-from PIL import Image, PngImagePlugin
+from PIL import Image, PngImagePlugin, ImageSequence, ImageOps
 
 import folder_paths
+<<<<<<< Updated upstream
+=======
+from .node_helpers import pillow as pil
+>>>>>>> Stashed changes
 
 LPNG_KEYWORD = "LPNG_LATENT"
 FORMAT_VERSION = "1.0"
@@ -74,7 +78,8 @@ class SaveLPNG:
             }
         }
 
-    RETURN_TYPES = ()
+    RETURN_TYPES =("IMAGE",)  # added LATENT
+    ETURN_NAMES = ("image_out",)
     FUNCTION = "save"
     OUTPUT_NODE = True
     CATEGORY = "LatentPNG"
@@ -116,7 +121,7 @@ class SaveLPNG:
 
         image.save(file_path, pnginfo=pnginfo)
 
-        return ()
+        return (decoded,)
 
 
 # ---------------------------------------------------------
@@ -124,8 +129,106 @@ class SaveLPNG:
 # ---------------------------------------------------------
 
 class LoadLPNG:
+    @classmethod
+    def INPUT_TYPES(s):
+        input_dir = folder_paths.get_input_directory()
+        files = [f for f in os.listdir(input_dir) if os.path.isfile(os.path.join(input_dir, f))]
+        files = folder_paths.filter_files_content_types(files, ["image"])
+        return {"required":
+                    {
+                    "image": (sorted(files), {"image_upload": True}),
+                    "vae": ("VAE",),
+                    },
+                    
+                }
+
+    CATEGORY = "image"
+    ESSENTIALS_CATEGORY = "Basics"
+    SEARCH_ALIASES = [
+        "load image", "load latent", "RAW", "open image", "import image", "image input",
+        "upload image", "read image", "image loader"
+    ]
+
+    RETURN_TYPES = ("IMAGE", "MASK", "LATENT",'info')  # added LATENT
+    FUNCTION = "load_image"
+
+    def load_image(self, image, vae):
+        image_path = folder_paths.get_annotated_filepath(image)
+        img = pil(Image.open, image_path)
+
+        output_images = []
+        output_masks = []
+        output_latent = 0
+        w, h = None, None
+
+        for im in ImageSequence.Iterator(img):
+            i = pil(ImageOps.exif_transpose, im)
+
+            if i.mode == 'I':
+                i = i.point(lambda i: i * (1 / 255))
+            image_rgb = i.convert("RGB")
+
+            if len(output_images) == 0:
+                w, h = image_rgb.size
+
+            if image_rgb.size[0] != w or image_rgb.size[1] != h:
+                continue
+
+            image_np = np.array(image_rgb).astype(np.float32) / 255.0
+            image_tensor = torch.from_numpy(image_np)[None,]
+
+            # Mask extraction
+            if 'A' in i.getbands():
+                mask = np.array(i.getchannel('A')).astype(np.float32) / 255.0
+                mask = 1. - torch.from_numpy(mask)
+            elif i.mode == 'P' and 'transparency' in i.info:
+                mask = np.array(i.convert('RGBA').getchannel('A')).astype(np.float32) / 255.0
+                mask = 1. - torch.from_numpy(mask)
+            else:
+                mask = torch.zeros((64,64), dtype=torch.float32, device="cpu")
+                
+            # Latents extraction
+            metadata_raw = i.info.get(LPNG_KEYWORD, None)
+        
+            # If no latent stored → fallback to encode
+            if metadata_raw is None:
+                info='No latent data found, using VAE! (this should happen only on your first pass)'
+                import warnings
+                warnings.warn("Warning: the file has empty latents! This should happen only on your first pass")
+                output_latent = vae.encode(image_tensor)
+                #raise RuntimeError("ERROR: the file is not a valid LPNG file, it contains no latents!")
+            else:
+                info='OK, latent image data was found!'
+                metadata = json.loads(metadata_raw)
+                latent_info = metadata["latent"]
+
+                compressed = base64.b64decode(latent_info["data"])
+                raw_bytes = zlib.decompress(compressed)
+
+                latent = bytes_to_tensor_fp16(
+                    raw_bytes,
+                    latent_info["shape"]
+                )
+                
+                output_latent = latent
+
+            output_images.append(image_tensor)
+            output_masks.append(mask.unsqueeze(0))
+
+            if img.format == "MPO":
+                break  # ignore other frames
+
+        if len(output_images) > 1:
+            raise RuntimeError("ERROR: can only handle one image at the time, a batch was received!")
+        else:
+            output_image = output_images[0]
+            output_mask = output_masks[0]
+            output_latent = {'samples':output_latent}
+
+        return output_image, output_mask, output_latent, info
 
     @classmethod
+<<<<<<< Updated upstream
     def INPUT_TYPES(cls):
         return {
             "required": {
@@ -167,7 +270,20 @@ class LoadLPNG:
         )
 
         return (image_tensor, {"samples": latent_tensor})
+=======
+    def IS_CHANGED(s, image):
+        image_path = folder_paths.get_annotated_filepath(image)
+        m = hashlib.sha256()
+        with open(image_path, 'rb') as f:
+            m.update(f.read())
+        return m.digest().hex()
+>>>>>>> Stashed changes
 
+    @classmethod
+    def VALIDATE_INPUTS(s, image):
+        if not folder_paths.exists_annotated_filepath(image):
+            return "Invalid image file: {}".format(image)
+        return True
 
 # ---------------------------------------------------------
 # Node Registration
