@@ -15,8 +15,9 @@ To keep the solution transparent you cen use a text preview node on the Load `in
 # Example workflow
 
 Encoding and decoding of latents is internally handled by Load / Save nodes with the following logic:
-    Load Image -> if latent found load that, otherwise use VAE
-    Save Image -> save and add latent to metadata, image is still png compatible
+     
+     Load Image -> if latent found load that, otherwise use VAE
+     Save Image -> save and add latent to metadata, image is still png compatible
 
 <img width="1484" height="880" alt="workflow(1)" src="https://github.com/user-attachments/assets/a8ba45d2-591a-40c3-90f8-8563d2f2e680" />
 
